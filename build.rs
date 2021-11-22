@@ -73,7 +73,7 @@ fn main() {
     if tool.is_like_msvc() {
         consensus_config.flag("/std:c++14").flag("/wd4100");
     } else if tool.is_like_clang() || tool.is_like_gnu() {
-        consensus_config.flag("-std=c++11").flag("-Wno-unused-parameter");
+        consensus_config.flag("-std=c++17").flag("-Wno-unused-parameter");
     }
 
     consensus_config.cpp(true)
