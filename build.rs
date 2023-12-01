@@ -26,6 +26,7 @@ fn main() {
         .include("depend/bitcoin/src/secp256k1/include")
         .define("__STDC_FORMAT_MACROS", None);
 
+/*
     // **Secp256k1**
     if !cfg!(feature = "external-secp") {
         base_config
@@ -54,17 +55,36 @@ fn main() {
             base_config.define("USE_FIELD_10X26", "1").define("USE_SCALAR_8X32", "1");
         }
     }
-
+*/
     let tool = base_config.get_compiler();
     if tool.is_like_msvc() {
-        base_config.flag("/std:c++14").flag("/wd4100");
+        base_config.std("c++14").flag("/wd4100");
     } else if tool.is_like_clang() || tool.is_like_gnu() {
-        base_config.flag("-std=c++11").flag("-Wno-unused-parameter");
+        base_config.std("c++11").flag("-Wno-unused-parameter");
     }
 
     if target.contains("windows") {
         base_config.define("WIN32", "1");
     }
+
+    if target.contains("emscripten") {
+        base_config
+            .compiler("emcc")
+            .flag("--no-entry")
+            .define("ERROR_ON_UNDEFINED_SYMBOLS", "0");
+    } else if target.contains("wasm") {
+        if target.contains("wasi") {
+            base_config
+                .include("/usr/include/wasm32-wasi");
+        }
+
+        base_config
+            .include("/usr/include")
+            .include("/usr/include/c++/11")
+            .include("/usr/include/x86_64-linux-gnu")
+            .include("/usr/include/x86_64-linux-gnu/c++/11");
+    }
+
     base_config
         .file("depend/bitcoin/src/util/strencodings.cpp")
         .file("depend/bitcoin/src/uint256.cpp")
@@ -80,5 +100,5 @@ fn main() {
         .file("depend/bitcoin/src/script/interpreter.cpp")
         .file("depend/bitcoin/src/script/script.cpp")
         .file("depend/bitcoin/src/script/script_error.cpp")
-        .compile("libbitcoinconsensus.a");
+        .compile("bitcoinconsensus");
 }
