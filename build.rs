@@ -19,16 +19,14 @@ fn main() {
     };
     let target = env::var("TARGET").expect("TARGET was not set");
     let is_big_endian = env::var("CARGO_CFG_TARGET_ENDIAN").expect("No endian is set") == "big";
-    let mut base_config = cc::Build::new();
-    base_config
-        .cpp(true)
-        .include("depend/bitcoin/src")
-        .include("depend/bitcoin/src/secp256k1/include")
-        .define("__STDC_FORMAT_MACROS", None);
-
-/*
     // **Secp256k1**
     if !cfg!(feature = "external-secp") {
+        let mut base_config = cc::Build::new();
+        base_config
+            .include("depend/bitcoin/src")
+            .include("depend/bitcoin/src/secp256k1/include")
+            .define("__STDC_FORMAT_MACROS", None);
+
         base_config
             .include("depend/bitcoin/src/secp256k1")
             .flag_if_supported("-Wno-unused-function") // some ecmult stuff is defined but not used upstream
@@ -54,8 +52,19 @@ fn main() {
         } else {
             base_config.define("USE_FIELD_10X26", "1").define("USE_SCALAR_8X32", "1");
         }
+
+        base_config.compile("secp256k1");
     }
-*/
+
+    let mut base_config = cc::Build::new();
+    base_config
+        .include("depend/bitcoin/src")
+        .include("depend/bitcoin/src/secp256k1/include")
+        .define("__STDC_FORMAT_MACROS", None);
+    base_config
+/	        .object("secp256k1")
+        .cpp(true);
+
     let tool = base_config.get_compiler();
     if tool.is_like_msvc() {
         base_config.std("c++14").flag("/wd4100");
