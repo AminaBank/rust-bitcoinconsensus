@@ -134,7 +134,9 @@ pub fn height_to_flags(height: u32) -> u32 {
 }
 
 /// Returns `libbitcoinconsensus` version.
-pub fn version() -> u32 { unsafe { bitcoinconsensus_version() as u32 } }
+pub fn version() -> u32 {
+    unsafe { bitcoinconsensus_version() as u32 }
+}
 
 /// Verifies a single spend (input) of a Bitcoin transaction.
 ///
@@ -273,5 +275,7 @@ mod tests {
     }
 
     #[test]
-    fn invalid_flags_test() { verify_with_flags(&[], 0, &[], 0, VERIFY_ALL + 1).unwrap_err(); }
+    fn invalid_flags_test() {
+        verify_with_flags(&[], 0, &[], 0, VERIFY_ALL + 1).unwrap_err();
+    }
 }
